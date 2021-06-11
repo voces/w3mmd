@@ -1,0 +1,1 @@
+deployctl run --libs="" --watch src/index.ts
