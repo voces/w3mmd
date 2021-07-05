@@ -21,3 +21,5 @@ setTimeout = (cb: () => void, delay: number) => {
   }
   oldSetTimeout(cb, delay);
 };
+
+window.eval = () => {};
