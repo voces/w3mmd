@@ -1,4 +1,4 @@
-globalThis.eval = () => {};
+import "./polyfill.ts";
 
 import zlib from "https://cdn.esm.sh/v43/browserify-zlib@0.2.0/deno/browserify-zlib.js";
 export { Buffer } from "https://esm.sh/v43/buffer@6.0.3";
@@ -12,14 +12,3 @@ export {
 Object.assign(zlib, { constants: { Z_SYNC_FLUSH: zlib.Z_SYNC_FLUSH } });
 
 export { ReplayParser } from "https://esm.sh/v43/w3gjs@2.4.2?no-check";
-
-const oldSetTimeout = setTimeout;
-// @ts-ignore Hack since Deno makes minimum 4ms
-// deno-lint-ignore no-global-assign
-setTimeout = (cb: () => void, delay: number) => {
-  if (delay === 0) {
-    cb();
-    return;
-  }
-  oldSetTimeout(cb, delay);
-};
