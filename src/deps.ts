@@ -1,3 +1,5 @@
+window.eval = () => {};
+
 import zlib from "https://cdn.esm.sh/v43/browserify-zlib@0.2.0/deno/browserify-zlib.js";
 export { Buffer } from "https://esm.sh/v43/buffer@6.0.3";
 export {
@@ -21,5 +23,3 @@ setTimeout = (cb: () => void, delay: number) => {
   }
   oldSetTimeout(cb, delay);
 };
-
-window.eval = () => {};

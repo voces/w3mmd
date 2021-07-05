@@ -1,1 +1,1 @@
-deployctl run --watch src/index.ts
+deployctl run --watch --no-check --v8-flags=--disallow-code-generation-from-strings src/index.ts
