@@ -5,7 +5,10 @@
   "editor.defaultFormatter": "denoland.vscode-deno",
   "editor.formatOnSave": true,
   "deno.suggest.imports.hosts": {
-	"https://cdn.esm.sh": false,
-	"https://esm.sh": false
-}
+    "https://cdn.esm.sh": false,
+    "https://esm.sh": false
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  }
 }
