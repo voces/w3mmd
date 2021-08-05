@@ -1,4 +1,6 @@
-globalThis.eval = () => {};
+
+// Used for inquire
+globalThis.eval = () => { };
 
 const oldSetTimeout = setTimeout;
 // @ts-ignore Hack since Deno makes minimum 4ms

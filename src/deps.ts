@@ -11,4 +11,4 @@ export {
 // Old polyfill doesn't conform to current Node.js spec
 Object.assign(zlib, { constants: { Z_SYNC_FLUSH: zlib.Z_SYNC_FLUSH } });
 
-export { ReplayParser } from "https://esm.sh/v43/w3gjs@2.4.2?no-check";
+export { ReplayParser } from "https://esm.sh/v43/@voces/w3gjs@2.4.2?no-check";

@@ -25,7 +25,8 @@ const fmtTime = (milliseconds: number) => {
   return s;
 };
 
-const header = `<meta name="viewport" content="width=device-width, initial-scale=1"><style>
+const header =
+  `<meta name="viewport" content="width=device-width, initial-scale=1"><style>
 pre {
     margin: 0.25em 0px;
     white-space: pre-wrap;
@@ -66,7 +67,7 @@ const endpoint = async (request: Request) => {
               ? "application/json"
               : "text/html; charset=UTF-8",
           },
-        }
+        },
       );
     }
 
@@ -80,7 +81,8 @@ const endpoint = async (request: Request) => {
 
     const url = "https://api.wc3stats.com/replays/" + replayId;
     if (!isJSON) {
-      body += `<pre>replay: <a href="https://wc3stats.com/games/${replayId}/mmd">https://wc3stats.com/games/${replayId}/mmd</a></pre><pre>url: <a href=${url}>${url}</a></pre>`;
+      body +=
+        `<pre>replay: <a href="https://wc3stats.com/games/${replayId}/mmd">https://wc3stats.com/games/${replayId}/mmd</a></pre><pre>url: <a href=${url}>${url}</a></pre>`;
     }
 
     const data = await fetch(url)
@@ -96,13 +98,16 @@ const endpoint = async (request: Request) => {
     }
 
     if (!isJSON) {
-      body += `<pre>name: ${data.body.name}</pre><pre>map: ${data.body.data.game.map}</pre><pre>file: <a href=${data.body.file}>${data.body.file}</a></pre>`;
+      body +=
+        `<pre>name: ${data.body.name}</pre><pre>map: ${data.body.data.game.map}</pre><pre>file: <a href=${data.body.file}>${data.body.file}</a></pre>`;
     } else {
       body += "[";
     }
 
     const buffer = new Buffer(
-      await (await fetch(data.body.file)).arrayBuffer()
+      await (await fetch(
+        `https://api.wc3stats.com/replays/${replayId}/download`,
+      )).arrayBuffer(),
     );
     const parser = new ReplayParser();
 
@@ -153,7 +158,8 @@ const endpoint = async (request: Request) => {
                 let warning;
                 const parts = action.key.split(/(?<!\\)\s/);
                 if (action.key.length >= 255) {
-                  warning = `max length ${action.key.length} reached, data will be truncated and possibly mutated`;
+                  warning =
+                    `max length ${action.key.length} reached, data will be truncated and possibly mutated`;
                 }
                 try {
                   switch (parts[0]) {
@@ -161,7 +167,8 @@ const endpoint = async (request: Request) => {
                       switch (parts[1]) {
                         case "version":
                           if (parts.length !== 4) {
-                            error = `expected four parts for init version, received ${parts.length}`;
+                            error =
+                              `expected four parts for init version, received ${parts.length}`;
                           }
                           if (
                             isNaN(parseInt(parts[2])) ||
@@ -176,13 +183,15 @@ const endpoint = async (request: Request) => {
                           break;
                         case "pid":
                           if (parts.length !== 4) {
-                            error = `expected four parts for init pid, received ${parts.length}`;
+                            error =
+                              `expected four parts for init pid, received ${parts.length}`;
                           }
                           if (isNaN(parseInt(parts[2]))) {
                             error = `expected number for part 3`;
                           }
                           if (players[parseInt(parts[2])]) {
-                            error = `init pid sent multiple times for player ${parts[2]} (${parts[3]})`;
+                            error = `init pid sent multiple times for player ${parts[2]
+                              } (${parts[3]})`;
                           }
                           if (isNaN(parseInt(parts[2]))) {
                             error = "expected part 3 to be number";
@@ -198,28 +207,32 @@ const endpoint = async (request: Request) => {
                       break;
                     case "DefVarP":
                       if (parts.length !== 5) {
-                        error = `expected five parts for DefVarP, received ${parts.length}`;
+                        error =
+                          `expected five parts for DefVarP, received ${parts.length}`;
                       }
                       if (
                         parts[2] !== "real" &&
                         parts[2] !== "int" &&
                         parts[2] !== "string"
                       ) {
-                        error = `expected part 3 (type) to be real, int, or string`;
+                        error =
+                          `expected part 3 (type) to be real, int, or string`;
                       }
                       if (
                         parts[3] !== "high" &&
                         parts[3] !== "low" &&
                         parts[3] !== "none"
                       ) {
-                        error = `expected part 4 (goal) to be high, low, or none`;
+                        error =
+                          `expected part 4 (goal) to be high, low, or none`;
                       }
                       if (
                         parts[4] !== "none" &&
                         parts[4] !== "track" &&
                         parts[4] !== "leaderboard"
                       ) {
-                        error = `expected part 5 (suggestion) to be none, track, or leaderboard`;
+                        error =
+                          `expected part 5 (suggestion) to be none, track, or leaderboard`;
                       }
                       if (variables[parts[1]]) {
                         error = `variable ${parts[1]} defined multiple times`;
@@ -232,19 +245,23 @@ const endpoint = async (request: Request) => {
                       break;
                     case "VarP": {
                       if (parts.length !== 5) {
-                        error = `expected five parts for VarP, received ${parts.length}`;
+                        error =
+                          `expected five parts for VarP, received ${parts.length}`;
                       }
                       if (!players[parseInt(parts[1])]) {
-                        error = `expected init pid ${parts[1]} to be called before using in VarP`;
+                        error = `expected init pid ${parts[1]
+                          } to be called before using in VarP`;
                       } else if (
                         gameTime <
                         players[parseInt(parts[1])].time + 1000
                       ) {
-                        warning = `ordering isn't deterministic, so players should be defined at least a few seconds before emitting values`;
+                        warning =
+                          `ordering isn't deterministic, so players should be defined at least a few seconds before emitting values`;
                       }
                       const variable = variables[parts[2]];
                       if (!variable) {
-                        error = `expected DefVarP ${parts[2]} to be called before using in VarP`;
+                        error = `expected DefVarP ${parts[2]
+                          } to be called before using in VarP`;
                       } else {
                         if (variable.type === "string") {
                           if (parts[3] !== "=") {
@@ -260,22 +277,26 @@ const endpoint = async (request: Request) => {
                           }
                         }
                         if (gameTime < variable.time + 1000) {
-                          warning = `ordering isn't deterministic, so variables should be defined at least a few seconds before emitting values`;
+                          warning =
+                            `ordering isn't deterministic, so variables should be defined at least a few seconds before emitting values`;
                         }
                       }
                       break;
                     }
                     case "FlagP":
                       if (parts.length !== 3) {
-                        error = `expected three parts for FlagP, received ${parts.length}`;
+                        error =
+                          `expected three parts for FlagP, received ${parts.length}`;
                       }
                       if (!players[parseInt(parts[1])]) {
-                        error = `expected init pid ${parts[1]} to be called before using in FlagP`;
+                        error = `expected init pid ${parts[1]
+                          } to be called before using in FlagP`;
                       } else if (
                         gameTime <
                         players[parseInt(parts[1])].time + 1000
                       ) {
-                        warning = `ordering isn't deterministic, so players should be defined at least a few seconds before emitting flags`;
+                        warning =
+                          `ordering isn't deterministic, so players should be defined at least a few seconds before emitting flags`;
                       }
                       if (
                         parts[2] !== "winner" &&
@@ -284,12 +305,14 @@ const endpoint = async (request: Request) => {
                         parts[2] !== "leaver" &&
                         parts[2] !== "practicing"
                       ) {
-                        error = `expected part 3 to be winner, loser, drawer, leaver, or practicing`;
+                        error =
+                          `expected part 3 to be winner, loser, drawer, leaver, or practicing`;
                       }
                       break;
                     case "DefEvent": {
                       if (parts.length < 4) {
-                        error = `expected at least four parts for DefEvent, received ${parts.length}`;
+                        error =
+                          `expected at least four parts for DefEvent, received ${parts.length}`;
                       }
                       if (events[parts[1]]) {
                         error = `event ${parts[1]} defined multiple times`;
@@ -301,8 +324,9 @@ const endpoint = async (request: Request) => {
                       } else {
                         if (argCount + 4 !== parts.length) {
                           error = `expected ${argCount + 4} (4+${parseInt(
-                            parts[2]
-                          )}) parts, received ${parts.length}`;
+                            parts[2],
+                          )
+                            }) parts, received ${parts.length}`;
                         }
                         for (let i = 3; i < 3 + argCount; i++) {
                           const argParts = parts[i].split(":");
@@ -326,19 +350,16 @@ const endpoint = async (request: Request) => {
                           );
                         for (const placeholder of placeholders) {
                           if (placeholder.index >= argCount) {
-                            error = `referenced variable index ${
-                              placeholder.index
-                            } is greater than the defined number of variables ${parseInt(
-                              parts[2]
-                            )}`;
+                            error =
+                              `referenced variable index ${placeholder.index} is greater than the defined number of variables ${parseInt(parts[2])
+                              }`;
                           }
                           if (
                             placeholder.suffix === "player" &&
                             args[placeholder.index].prefix !== "pid"
                           ) {
-                            error = `expected arg ${
-                              args[placeholder.index].name
-                            } to be defined with pid: prefix if formatting with :player suffix`;
+                            error = `expected arg ${args[placeholder.index].name
+                              } to be defined with pid: prefix if formatting with :player suffix`;
                           }
                         }
                       }
@@ -352,31 +373,35 @@ const endpoint = async (request: Request) => {
                     }
                     case "Event": {
                       if (parts.length < 2) {
-                        error = `expected at least two parts for Event, received ${parts.length}`;
+                        error =
+                          `expected at least two parts for Event, received ${parts.length}`;
                       }
                       const event = events[parts[1]];
                       if (!event) {
-                        error = `expected DefEvent ${parts[1]} to be called before using in Event`;
+                        error = `expected DefEvent ${parts[1]
+                          } to be called before using in Event`;
                       } else {
                         if (parts.length !== event.args.length + 2) {
-                          error = `expected ${event.args.length + 2} (2+${
-                            event.args.length
-                          }) parts, received ${parts.length}`;
+                          error = `expected ${event.args.length +
+                            2} (2+${event.args.length}) parts, received ${parts.length}`;
                         }
                         if (gameTime < event.time + 1000) {
-                          warning = `ordering isn't deterministic, so events should be defined at least a few seconds before emitting events`;
+                          warning =
+                            `ordering isn't deterministic, so events should be defined at least a few seconds before emitting events`;
                         }
                       }
                       break;
                     }
                     case "Blank":
                       if (parts.length !== 1) {
-                        error = `expected one part for Blank, received ${parts.length}`;
+                        error =
+                          `expected one part for Blank, received ${parts.length}`;
                       }
                       break;
                     case "Custom":
                       if (parts.length < 2) {
-                        error = `expected at least two parts for Custom, received ${parts.length}`;
+                        error =
+                          `expected at least two parts for Custom, received ${parts.length}`;
                       }
                       break;
                     default:
@@ -386,31 +411,30 @@ const endpoint = async (request: Request) => {
                   /* do nothing*/
                 }
                 if (isJSON) {
-                  body += `${first ? "" : ","}{"time":${
-                    gameTime / 1000
-                  },"event":${JSON.stringify(parts)}${
-                    error ? `,"error":${JSON.stringify(error)}` : ""
-                  }}${warning ? `,"warning":${JSON.stringify(warning)}` : ""}`;
+                  body += `${first ? "" : ","}{"time":${gameTime /
+                    1000},"event":${JSON.stringify(parts)}${error ? `,"error":${JSON.stringify(error)}` : ""
+                    }}${warning ? `,"warning":${JSON.stringify(warning)}` : ""}`;
                 } else {
                   body += `<pre><span class="time">[${fmtTime(
-                    gameTime
-                  )}]</span> <span title="${action.key.replace(
-                    /"/g,
-                    "&quot;"
-                  )}">${action.key.replace(/\\ /g, " ")}</span>${
-                    error
+                    gameTime,
+                  )
+                    }]</span> <span title="${action.key.replace(
+                      /"/g,
+                      "&quot;",
+                    )
+                    }">${action.key.replace(/\\ /g, " ")}</span>${error
                       ? ` <span class="error">${error}</span>`
                       : warning
-                      ? ` <span class="warning">${warning}</span>`
-                      : ""
-                  }</pre>`;
+                        ? ` <span class="warning">${warning}</span>`
+                        : ""
+                    }</pre>`;
                 }
                 first = false;
               }
             }
           }
         }
-      }
+      },
     );
 
     // Actually start parsing
