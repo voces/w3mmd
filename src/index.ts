@@ -432,13 +432,16 @@ const _endpoint = async (
   // Actually start parsing
   await parser.parse(buffer);
 
+  if (isJSON) write("]");
+
   writer.close();
 };
 
 const endpoint = (request: Request) => {
   // Figure out path/request
-  const parts = request.url.split("/");
-  const replayId = parseInt(parts[3]);
+  const { pathname } = new URL(request.url);
+  const parts = pathname.split("/");
+  const replayId = parseInt(parts[1]);
   const isJSON = parts[2] === "json";
 
   try {
@@ -479,4 +482,4 @@ const endpoint = (request: Request) => {
   }
 };
 
-serve({ "/:replayid": endpoint });
+serve({ "/:replayid": endpoint, "/:replayid/json": endpoint });
