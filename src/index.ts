@@ -77,18 +77,18 @@ const _endpoint = async (
     return;
   }
 
+  const replayFile = `https://api.wc3stats.com/replays/${replayId}/download`;
+
   if (!isJSON) {
     write(
-      `<pre>name: ${data.body.name}</pre><pre>map: ${data.body.data.game.map}</pre><pre>file: <a href=${data.body.file}>${data.body.file}</a></pre>`,
+      `<pre>name: ${data.body.name}</pre><pre>map: ${data.body.data.game.map}</pre><pre>file: <a href=${replayFile}>${replayFile}</a></pre>`,
     );
   } else {
     write("[");
   }
 
   const buffer = new Buffer(
-    await (await fetch(
-      `https://api.wc3stats.com/replays/${replayId}/download`,
-    )).arrayBuffer(),
+    await (await fetch(replayFile)).arrayBuffer(),
   );
   const parser = new ReplayParser();
 
@@ -370,8 +370,10 @@ const _endpoint = async (
                       } to be called before using in Event`;
                     } else {
                       if (parts.length !== event.args.length + 2) {
-                        error = `expected ${event.args.length +
-                          2} (2+${event.args.length}) parts, received ${parts.length}`;
+                        error = `expected ${
+                          event.args.length +
+                          2
+                        } (2+${event.args.length}) parts, received ${parts.length}`;
                       }
                       if (gameTime < event.time + 1000) {
                         warning =
@@ -399,8 +401,10 @@ const _endpoint = async (
                 /* do nothing*/
               }
               if (isJSON) {
-                write(`${first ? "" : ","}{"time":${gameTime /
-                  1000},"event":${JSON.stringify(parts)}${
+                write(`${first ? "" : ","}{"time":${
+                  gameTime /
+                  1000
+                },"event":${JSON.stringify(parts)}${
                   error ? `,"error":${JSON.stringify(error)}` : ""
                 }}${warning ? `,"warning":${JSON.stringify(warning)}` : ""}`);
               } else {
