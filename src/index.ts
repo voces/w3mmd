@@ -1,4 +1,7 @@
-import { Buffer, ReplayParser, serve } from "./deps.ts";
+import "./polyfill.ts";
+import { Buffer } from "std/node/buffer.ts";
+import { serve } from "std/http/server.ts";
+import { ReplayParser } from "w3gjs";
 
 const fmtTime = (milliseconds: number) => {
   let s = "";
@@ -25,8 +28,9 @@ const fmtTime = (milliseconds: number) => {
   return s;
 };
 
-const header =
-  `<meta name="viewport" content="width=device-width, initial-scale=1"><style>
+const header = `<!-- Append /json to view easily consumable output. -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
 pre {
     margin: 0.25em 0px;
     white-space: pre-wrap;
@@ -45,7 +49,7 @@ pre {
     a { color: #55f; }
     a:visited { color: #9c4ce6; }
 }
-</style>`;
+</style>\n`;
 
 const _endpoint = async (
   replayId: number,
@@ -60,7 +64,8 @@ const _endpoint = async (
   const url = "https://api.wc3stats.com/replays/" + replayId;
   if (!isJSON) {
     write(
-      `<pre>replay: <a href="https://wc3stats.com/games/${replayId}/mmd">https://wc3stats.com/games/${replayId}/mmd</a></pre><pre>url: <a href=${url}>${url}</a></pre>`,
+      `<pre>replay: <a href="https://wc3stats.com/games/${replayId}/mmd">https://wc3stats.com/games/${replayId}/mmd</a></pre>
+<pre>url: <a href=${url}>${url}</a></pre>\n`,
     );
   }
 
@@ -81,7 +86,9 @@ const _endpoint = async (
 
   if (!isJSON) {
     write(
-      `<pre>name: ${data.body.name}</pre><pre>map: ${data.body.data.game.map}</pre><pre>file: <a href=${replayFile}>${replayFile}</a></pre>`,
+      `<pre>name: ${data.body.name}</pre>
+<pre>map: ${data.body.data.game.map}</pre>
+<pre>file: <a href=${replayFile}>${replayFile}</a></pre>\n`,
     );
   } else {
     write("[");
@@ -231,7 +238,7 @@ const _endpoint = async (
                     }
                     const variable = variables[parts[2]];
                     if (!variable) {
-                      error = `expected DefVarP ${
+                      warning = `expected DefVarP ${
                         parts[2]
                       } to be called before using in VarP`;
                     } else {
@@ -412,7 +419,7 @@ const _endpoint = async (
                     : warning
                     ? ` <span class="warning">${warning}</span>`
                     : ""
-                }</pre>`);
+                }</pre>\n`);
               }
               first = false;
             }
@@ -475,4 +482,4 @@ const endpoint = (request: Request) => {
   }
 };
 
-serve({ "/:replayid": endpoint, "/:replayid/json": endpoint });
+serve(endpoint);
