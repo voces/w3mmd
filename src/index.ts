@@ -477,7 +477,7 @@ const endpoint = (request: Request) => {
     // Immediately respond with a 200; we'll stream the results
     return res;
   } catch (err) {
-    console.error(err);
+    console.log(err);
     return new Response(isJSON ? JSON.stringify(err.message) : err.toString());
   }
 };
