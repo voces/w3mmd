@@ -1,2 +1,1 @@
-# deployctl run --inspect --watch --no-check --v8-flags=--disallow-code-generation-from-strings src/index.ts
-deno run --watch --import-map import_map.json --unstable --allow-net=:8000,api.wc3stats.com src/index.ts
+deno run --watch --unstable --allow-net=:8000,api.wc3stats.com src/index.ts

@@ -1,7 +1,7 @@
 import "./polyfill.ts";
-import { Buffer } from "std/node/buffer.ts";
-import { serve } from "std/http/server.ts";
-import { ReplayParser } from "w3gjs";
+import { Buffer } from "https://deno.land/std@0.120.0/node/buffer.ts";
+import { serve } from "https://deno.land/std@0.120.0/http/server.ts";
+import { ReplayParser } from "https://esm.sh/w3gjs?pin=v61";
 
 const fmtTime = (milliseconds: number) => {
   let s = "";

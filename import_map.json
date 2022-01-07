@@ -1,6 +1,0 @@
-{
-    "imports": {
-        "w3gjs": "https://esm.sh/w3gjs?pin=v61",
-        "std/": "https://deno.land/std@0.120.0/"
-    }
-}
