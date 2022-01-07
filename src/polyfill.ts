@@ -1,4 +1,6 @@
+console.log("polyfill");
 if (!Deno.stderr) {
+  console.log("polyfill Deno.stderr");
   Object.assign(Deno, "stderr", { value: new WritableStream() });
 }
 if (!Deno.stdout) {

@@ -1,1 +1,1 @@
-deno run --watch --unstable --allow-net=:8000,api.wc3stats.com src/index.ts
+deno run -r --unstable --allow-net=:8000,api.wc3stats.com src/index.ts
