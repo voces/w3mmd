@@ -1,0 +1,1 @@
+deno bundle src/index.ts --no-check public/index.js

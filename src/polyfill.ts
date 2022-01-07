@@ -1,14 +1,5 @@
-console.log("polyfill");
-if (!Deno.stderr) {
-  console.log("polyfill Deno.stderr");
-  Object.assign(Deno, "stderr", { value: new WritableStream() });
-}
-if (!Deno.stdout) {
-  Object.assign(Deno, "stdout", { value: new WritableStream() });
-}
-
 // Used for inquire
-// globalThis.eval = () => {};
+globalThis.eval = () => {};
 
 const oldSetTimeout = setTimeout;
 // @ts-ignore Hack since Deno makes minimum 4ms
