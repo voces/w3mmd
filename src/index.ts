@@ -87,7 +87,7 @@ const _endpoint = async (
     write("[");
   }
 
-  const buffer = new Buffer(
+  const buffer = Buffer.from(
     await (await fetch(replayFile)).arrayBuffer(),
   );
   const parser = new ReplayParser();
@@ -111,18 +111,7 @@ const _endpoint = async (
   > = {};
   parser.on(
     "gamedatablock",
-    (gamedatablock: {
-      id: number;
-      timeIncrement?: number;
-      commandBlocks?: {
-        actions: {
-          id: number;
-          filename: string;
-          missionKey: string;
-          key: string;
-        }[];
-      }[];
-    }) => {
+    (gamedatablock) => {
       if (gamedatablock.id !== 0x1f && gamedatablock.id !== 0x1e) return;
       if (typeof gamedatablock.timeIncrement === "number") {
         gameTime += gamedatablock.timeIncrement;

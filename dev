@@ -1,1 +1,7 @@
-deployctl run --inspect --watch --no-check --v8-flags=--disallow-code-generation-from-strings src/index.ts
+deno run \
+    --watch \
+    --no-check=remote \
+    --allow-net \
+    --allow-env \
+    --v8-flags=--disallow-code-generation-from-strings \
+    src/index.ts
