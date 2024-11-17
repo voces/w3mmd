@@ -27,6 +27,14 @@ const fmtTime = (milliseconds: number) => {
   return s;
 };
 
+const dark = `@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #151522;
+        color: white;
+    }
+    a { color: #55f; }
+    a:visited { color: #9c4ce6; }
+}`;
 const header = `<!-- Append /json to view easily consumable output. -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
@@ -40,15 +48,14 @@ pre {
 .error::before { content: '🚫 '; }
 .warning { color: #cc3; }
 .warning::before { content: '⚠️ '; }
-@media (prefers-color-scheme: dark) {
-    body {
-        background-color: #151522;
-        color: white;
-    }
-    a { color: #55f; }
-    a:visited { color: #9c4ce6; }
-}
+${dark}
 </style>\n`;
+const uploadForm = `<style>
+${dark}
+</style>
+<form method="POST" enctype="multipart/form-data">
+  <input type="file" name="file" onchange="document.getElementsByTagName('form')[0].submit()" />
+</form>`;
 
 const encoder = new TextEncoder();
 
@@ -467,7 +474,7 @@ const endpoint = async (request: Request) => {
         );
       } else {
         return new Response(
-          `<form method="POST" enctype="multipart/form-data"><input type="file" name="file" onchange="document.getElementsByTagName('form')[0].submit()" /></form>`,
+          uploadForm,
           {
             headers: { "Content-Type": "text/html; charset=UTF-8" },
           },
