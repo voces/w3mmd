@@ -1,6 +1,5 @@
 import { Buffer } from "node:buffer";
-import { serve } from "https://deno.land/std@0.120.0/http/server.ts";
-import { ReplayParser } from "npm:@voces/w3gjs@2.5.2";
+import { ReplayParser } from "@voces/w3gjs";
 
 const fmtTime = (milliseconds: number) => {
   let s = "";
@@ -501,9 +500,10 @@ const endpoint = async (request: Request) => {
     // Immediately respond with a 200; we'll stream the results
     return res;
   } catch (err) {
-    console.log(err);
-    return new Response(isJSON ? JSON.stringify(err.message) : err.toString());
+    console.error(err);
+    const message = err instanceof Error ? err.message : String(err);
+    return new Response(isJSON ? JSON.stringify(message) : message);
   }
 };
 
-serve(endpoint);
+Deno.serve(endpoint);
