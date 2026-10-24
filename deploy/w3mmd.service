@@ -1,0 +1,29 @@
+# Reference template for the systemd unit on the EC2 cohost. Nothing reads this
+# file live — the authoritative copy is /etc/systemd/system/w3mmd.service,
+# copied from here. Keep the two in sync (see deploy/README.md).
+[Unit]
+Description=w3mmd (Deno server)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/w3mmd
+
+# systemd doesn't set HOME; deno needs it for ~/.cache/deno.
+Environment=HOME=/home/ubuntu
+# Port 3050 must stay unique on the box; see "Box facts" in deploy/README.md.
+Environment=PORT=3050
+
+ExecStart=/home/ubuntu/.deno/bin/deno task start
+
+# 143 is Deno's exit for an unhandled SIGTERM, which is how systemd stops it.
+SuccessExitStatus=143 SIGTERM
+
+SyslogIdentifier=w3mmd
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
