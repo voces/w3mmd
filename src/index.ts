@@ -371,7 +371,7 @@ const parseReplay = async (
               1000
             },"event":${JSON.stringify(parts)}${
               error ? `,"error":${JSON.stringify(error)}` : ""
-            }}${warning ? `,"warning":${JSON.stringify(warning)}` : ""}`);
+            }${warning ? `,"warning":${JSON.stringify(warning)}` : ""}}`);
           } else {
             write(`<pre><span class="time">[${
               fmtTime(
