@@ -63,7 +63,8 @@ const parseReplay = async (
   writer: WritableStreamDefaultWriter<Uint8Array>,
   isJSON = true,
 ) => {
-  const write = (data: string) => writer.write(encoder.encode(data));
+  const write = (data: string) =>
+    writer.write(encoder.encode(data)).catch(() => {});
   const parser = new ReplayParser();
 
   let gameTime = 0;
@@ -370,7 +371,7 @@ const parseReplay = async (
               1000
             },"event":${JSON.stringify(parts)}${
               error ? `,"error":${JSON.stringify(error)}` : ""
-            }}${warning ? `,"warning":${JSON.stringify(warning)}` : ""}`);
+            }${warning ? `,"warning":${JSON.stringify(warning)}` : ""}}`);
           } else {
             write(`<pre><span class="time">[${
               fmtTime(
@@ -406,7 +407,7 @@ const parseReplay = async (
   if (isJSON) write("]");
   console.log("end parse");
 
-  writer.close();
+  await writer.close().catch(() => {});
 };
 
 const wc3StatsReplay = async (
@@ -414,8 +415,8 @@ const wc3StatsReplay = async (
   isJSON: boolean,
   writer: WritableStreamDefaultWriter<Uint8Array>,
 ) => {
-  const encoder = new TextEncoder();
-  const write = (data: string) => writer.write(encoder.encode(data));
+  const write = (data: string) =>
+    writer.write(encoder.encode(data)).catch(() => {});
 
   const url = "https://api.wc3stats.com/replays/" + replayId;
   if (!isJSON) {
@@ -434,7 +435,7 @@ const wc3StatsReplay = async (
   if (data.code >= 400) {
     if (isJSON) write(JSON.stringify(data));
     else write(`<pre class="error">${JSON.stringify(data)}</pre>`);
-    writer.close();
+    await writer.close().catch(() => {});
     return;
   }
 
@@ -452,7 +453,7 @@ const wc3StatsReplay = async (
     await (await fetch(replayFile)).arrayBuffer(),
   );
 
-  parseReplay(buffer, writer, isJSON);
+  await parseReplay(buffer, writer, isJSON);
 };
 
 const endpoint = async (request: Request) => {
@@ -491,11 +492,23 @@ const endpoint = async (request: Request) => {
       },
     });
 
-    if (!isJSON) writer.write(encoder.encode(header));
+    if (!isJSON) writer.write(encoder.encode(header)).catch(() => {});
 
-    if (request.body) {
-      parseReplay(Buffer.from(await request.arrayBuffer()), writer, isJSON);
-    } else wc3StatsReplay(replayId, isJSON, writer);
+    // Runs after the response is returned, so nothing above can catch it. An
+    // unhandled rejection exits the process and drops every other request.
+    const task = request.body
+      ? parseReplay(Buffer.from(await request.arrayBuffer()), writer, isJSON)
+      : wc3StatsReplay(replayId, isJSON, writer);
+    task.catch((err) => {
+      console.error(err);
+      const message = err instanceof Error ? err.message : String(err);
+      writer.write(encoder.encode(
+        isJSON
+          ? JSON.stringify({ error: message })
+          : `<pre class="error">${message.replace(/</g, "&lt;")}</pre>`,
+      )).catch(() => {});
+      writer.close().catch(() => {});
+    });
 
     // Immediately respond with a 200; we'll stream the results
     return res;
@@ -506,4 +519,7 @@ const endpoint = async (request: Request) => {
   }
 };
 
-Deno.serve(endpoint);
+Deno.serve({
+  hostname: "127.0.0.1",
+  port: Number(Deno.env.get("PORT") ?? 8000),
+}, endpoint);
