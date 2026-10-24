@@ -7,7 +7,10 @@ database, no secrets, no build step.
 - **Serving:** `w3mmd.service` (systemd) runs `deno task start` on
   `127.0.0.1:3050`; nginx (`w3mmd.nginx.conf`) terminates TLS and
   reverse-proxies to it without buffering, so results stream as they parse.
-- **Deploy:** manual, see [Operating](#operating).
+- **Deploy:** a push to `master` runs `.github/workflows/deploy.yml`, which
+  checks the code and POSTs `{app:"w3mmd", version:<sha>}` to w3xio's `/deploy`.
+  That does `git fetch origin master` → `git checkout <sha>` → `deno install` →
+  `systemctl restart w3mmd`, and posts the result to the admin Discord channel.
 
 `deploy/w3mmd.service` and `deploy/w3mmd.nginx.conf` are **reference
 templates**; the live copies are `/etc/systemd/system/w3mmd.service` and
@@ -48,6 +51,21 @@ templates**; the live copies are `/etc/systemd/system/w3mmd.service` and
    then reissue with `--nginx`. blocktol's `deploy/README.md` (steps 6 and
    Cutover) walks through exactly that, including the `_acme-challenge` CNAME
    Deno leaves behind.
+5. **sudoers:** let w3xio restart the unit without a password, mirroring the
+   blocktol and emojist rules. As the user w3xio runs under:
+   ```
+   <w3xio-user> ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart w3mmd
+   ```
+   The checkout must be writable by that user, since it runs `git checkout`
+   there; if w3xio doesn't run as `ubuntu`, set `W3MMD_DIR` in its environment
+   to wherever the checkout lives (default `/home/ubuntu/w3mmd`).
+6. **Workflow:** `deploy/deploy-workflow.yml` is the workflow, kept out of
+   `.github/workflows/` only because the session that wrote it couldn't push
+   there. Install it once:
+   `git mv deploy/deploy-workflow.yml .github/workflows/deploy.yml`.
+7. **GitHub secret:** set this repo's `DEPLOY_WEBHOOK_URL` to the same
+   `https://dapi.w3x.io/deploy?token=<DEPLOY_SECRET>` blocktol uses. Until it is
+   set, the workflow only checks the code.
 
 ## Cutover
 
@@ -62,6 +80,8 @@ templates**; the live copies are `/etc/systemd/system/w3mmd.service` and
 ## Operating
 
 - Logs: `journalctl -u w3mmd -f`
-- Deploy: `git -C /home/ubuntu/w3mmd pull && sudo systemctl restart w3mmd` (run
-  `deno install` first if `deno.lock` changed)
+- Manual deploy (if the webhook is down). The webhook leaves the checkout on a
+  detached SHA, so fetch and check out rather than `git pull`:
+  `git fetch origin master && git checkout origin/master && deno install`, then
+  `sudo systemctl restart w3mmd`.
 - Rollback: `git -C /home/ubuntu/w3mmd checkout <sha>` then restart.
