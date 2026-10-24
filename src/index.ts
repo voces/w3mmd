@@ -95,18 +95,19 @@ const parseReplay = async (
 
       for (const commandBlock of gamedatablock.commandBlocks) {
         for (const action of commandBlock.actions) {
+          if (action.id !== 107) continue;
+          const { filename, missionKey, key } = action.cache;
           if (
-            action.id !== 107 ||
-            !action.filename.toLowerCase().includes("mmd") ||
-            !action.missionKey.startsWith("val:")
+            !filename.toLowerCase().includes("mmd") ||
+            !missionKey.startsWith("val:")
           ) continue;
 
           let error;
           let warning;
-          const parts = action.key.split(/(?<!\\)\s/);
-          if (action.key.length >= 255) {
+          const parts = key.split(/(?<!\\)\s/);
+          if (key.length >= 255) {
             warning =
-              `max length ${action.key.length} reached, data will be truncated and possibly mutated`;
+              `max length ${key.length} reached, data will be truncated and possibly mutated`;
           }
           try {
             switch (parts[0]) {
@@ -150,7 +151,7 @@ const parseReplay = async (
                     };
                     break;
                   default:
-                    error = `unknown emission: ${action.key}`;
+                    error = `unknown emission: ${key}`;
                 }
                 break;
               case "DefVarP":
@@ -360,7 +361,7 @@ const parseReplay = async (
                 }
                 break;
               default:
-                error = `unknown emission: ${action.key}`;
+                error = `unknown emission: ${key}`;
             }
           } catch {
             /* do nothing*/
@@ -378,11 +379,11 @@ const parseReplay = async (
                 gameTime,
               )
             }]</span> <span title="${
-              action.key.replace(
+              key.replace(
                 /"/g,
                 "&quot;",
               )
-            }">${action.key.replace(/\\ /g, " ")}</span>${
+            }">${key.replace(/\\ /g, " ")}</span>${
               error
                 ? ` <span class="error">${error}</span>`
                 : warning
