@@ -59,11 +59,7 @@ templates**; the live copies are `/etc/systemd/system/w3mmd.service` and
    The checkout must be writable by that user, since it runs `git checkout`
    there; if w3xio doesn't run as `ubuntu`, set `W3MMD_DIR` in its environment
    to wherever the checkout lives (default `/home/ubuntu/w3mmd`).
-6. **Workflow:** `deploy/deploy-workflow.yml` is the workflow, kept out of
-   `.github/workflows/` only because the session that wrote it couldn't push
-   there. Install it once:
-   `git mv deploy/deploy-workflow.yml .github/workflows/deploy.yml`.
-7. **GitHub secret:** set this repo's `DEPLOY_WEBHOOK_URL` to the same
+6. **GitHub secret:** set this repo's `DEPLOY_WEBHOOK_URL` to the same
    `https://dapi.w3x.io/deploy?token=<DEPLOY_SECRET>` blocktol uses. Until it is
    set, the workflow only checks the code.
 
