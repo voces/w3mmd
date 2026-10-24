@@ -492,7 +492,7 @@ const endpoint = async (request: Request) => {
       },
     });
 
-    if (!isJSON) writer.write(encoder.encode(header));
+    if (!isJSON) writer.write(encoder.encode(header)).catch(() => {});
 
     // Runs after the response is returned, so nothing above can catch it. An
     // unhandled rejection exits the process and drops every other request.
